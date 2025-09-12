@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/template.xhtml">
+    <ui:define name="titulo">Relatórios e Gestão de Atendimentos</ui:define>
+
+    <ui:define name="conteudo">
+        <h:form id="formRelatorios">
+        	<p:growl id="msg" showDetail="true" life="6000"/>
+            <p:panel header="Filtros de Pesquisa">
+                <p:panelGrid columns="4" layout="grid" styleClass="ui-panelgrid-blank">
+                
+                    <p:outputLabel for="dataInicio" value="Data Início:" />
+                    <p:calendar id="dataInicio" value="#{relatorioBean.filtroDataInicio}" pattern="dd/MM/yyyy" mask="true"/>
+
+                    <p:outputLabel for="dataFim" value="Data Fim:" />
+                    <p:calendar id="dataFim" value="#{relatorioBean.filtroDataFim}" pattern="dd/MM/yyyy" mask="true"/>
+
+                    <p:outputLabel for="medico" value="Médico:" />
+                    <p:selectOneMenu id="medico" value="#{relatorioBean.filtroIdMedico}">
+                        <f:selectItem itemLabel="Todos" itemValue="#{null}" />
+                        <f:selectItems value="#{relatorioBean.medicos}" var="m"
+                                       itemLabel="#{m.nomeCompleto}" itemValue="#{m.id}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="cpf" value="CPF do Paciente:" />
+                    <p:inputMask id="cpf" value="#{relatorioBean.filtroCpf}" mask="999.999.999-99"/>
+
+                </p:panelGrid>
+                <br/>
+                <p:commandButton value="Filtrar" actionListener="#{relatorioBean.filtrar}" update="tabelaAtendimentos" />
+            </p:panel>
+            
+            <br/>
+            
+            <p:dataTable id="tabelaAtendimentos" value="#{relatorioBean.atendimentosFiltrados}" var="at"
+                         emptyMessage="Nenhum atendimento encontrado!">
+                         
+                <p:column headerText="Nº Atendimento">
+                    <h:outputText value="#{at.numero}" />
+                </p:column>
+                
+                <p:column headerText="CPF Paciente">
+                    <h:outputText value="#{at.paciente.cpf}" />
+                </p:column>
+                
+                <p:column headerText="Nome Paciente">
+                    <h:outputText value="#{at.paciente.nomeCompleto}" />
+                </p:column>
+                
+                <p:column headerText="Data Atendimento">
+                    <h:outputText value="#{at.dataEntrada}">
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" />
+                    </h:outputText>
+                </p:column>
+                
+                <p:column headerText="Situação">
+                    <h:outputText value="#{at.situacao}" />
+                </p:column>
+                
+                <p:column headerText="Ações">
+    				<p:commandButton value="Médicos" icon="pi pi-users"
+                     	actionListener="#{relatorioBean.selecionarAtendimento(at)}"
+                     	oncomplete="PF('dialogMedicos').show();"
+                     	update=":formDialogs:dialogMedicosContent">
+    				</p:commandButton>
+    				
+    				<p:commandButton value="Excluir" icon="pi pi-trash"
+                 					actionListener="#{relatorioBean.excluirAtendimento(at)}"
+                 					update="tabelaAtendimentos :formRelatorios:msg" style="margin-left: 5px;">
+    					<p:confirm header="Confirmação" message="Deseja realmente excluir este atendimento?"/>
+					</p:commandButton>
+					
+					<p:commandButton value="Finalizar" icon="pi pi-check-circle"
+                 					actionListener="#{relatorioBean.selecionarAtendimento(at)}"
+                 					oncomplete="PF('dialogParecer').show();"
+                 					update=":formDialogs:dialogParecerContent"
+                 					style="margin-bottom: 5px;"
+                 					rendered="#{at.situacao == 'EM_ABERTO'}"/>
+					
+				</p:column>
+                
+             </p:dataTable>
+            
+        </h:form>
+        <h:form id="formDialogs">
+    		<p:dialog header="Médicos do Atendimento" widgetVar="dialogMedicos"
+              			modal="true" resizable="false">
+        		<h:panelGroup id="dialogMedicosContent">
+            		<ui:repeat value="#{relatorioBean.atendimentoSelecionado.medicos}" var="med">
+                		<h:outputText value="#{med.nomeCompleto}" /><br/>
+            		</ui:repeat>
+        		</h:panelGroup>
+    		</p:dialog>
+    		<p:dialog header="Finalizar Atendimento - Parecer Obrigatório" widgetVar="dialogParecer"
+          				modal="true" resizable="false">
+    			<h:panelGroup id="dialogParecerContent" style="display: block; padding: 10px;">
+        			<p:outputLabel for="parecer" value="Parecer Médico:" />
+        			<br/>
+        			<p:inputTextarea id="parecer" value="#{relatorioBean.parecer}" rows="6" cols="50"
+                         				required="true" label="Parecer"/>
+        			<br/><br/>
+        			<p:commandButton value="Confirmar Finalização"
+    					action="#{relatorioBean.finalizarAtendimento}"
+    					process="@form"
+    					update=":formRelatorios:tabelaAtendimentos :formRelatorios:msg"
+    					oncomplete="if (!args.validationFailed) PF('dialogParecer').hide();" />
+
+    			</h:panelGroup>
+			</p:dialog>
+		</h:form>
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+    		<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
+    		<p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" />
+		</p:confirmDialog>
+    </ui:define>
+</ui:composition>
+</html>

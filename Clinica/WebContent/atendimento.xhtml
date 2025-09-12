@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/template.xhtml">
+    <ui:define name="titulo">Lançar Atendimento</ui:define>
+
+    <ui:define name="conteudo">
+        <h:form id="formAtendimento">
+            <p:growl id="msg" showDetail="true" />
+
+            <p:panel header="1. Buscar Paciente">
+                <p:panelGrid columns="3" styleClass="ui-noborder">
+                    <p:outputLabel for="cpf" value="Digite o CPF do Paciente:" />
+                    
+                    <p:inputMask id="cpf" value="#{atendimentoBean.cpfPesquisa}" 
+             			mask="999.999.999-99" required="true" />
+                    
+                    <p:commandButton value="Buscar CPF" 
+                                     actionListener="#{atendimentoBean.buscarCpfPaciente()}"
+                                     process="@this cpf" 
+                                     update="msg painelDadosPaciente" />
+                </p:panelGrid>
+            </p:panel>
+
+            <br/>
+
+            <br/>
+
+<p:panel id="painelDadosPaciente" header="2. Dados do Paciente">
+    
+    <p:panelGrid columns="4" layout="grid" styleClass="ui-panelgrid-blank">
+    
+        <p:outputLabel for="primeiroNome" value="Primeiro Nome:" />
+        <p:inputText id="primeiroNome" value="#{atendimentoBean.paciente.primeiroNome}"
+                     required="true" disabled="#{atendimentoBean.pacienteEncontrado}" />
+                     
+        <p:outputLabel for="sobrenome" value="Sobrenome:" />
+        <p:inputText id="sobrenome" value="#{atendimentoBean.paciente.sobrenome}"
+                     required="true" disabled="#{atendimentoBean.pacienteEncontrado}" />
+
+        <p:outputLabel for="nascimento" value="Data de Nascimento:" />
+        <p:datePicker id="nascimento" value="#{atendimentoBean.paciente.nascimento}"
+                      required="true" disabled="#{atendimentoBean.pacienteEncontrado}"
+                      showIcon="true" pattern="dd/MM/yyyy" />
+
+        <p:outputLabel for="celular" value="Celular:" />
+        <p:inputMask id="celular" value="#{atendimentoBean.paciente.celular}"
+                     required="true" mask="(99) 99999-9999" />
+                     
+        <p:outputLabel for="rua" value="Rua:" />
+        <p:inputText id="rua" value="#{atendimentoBean.paciente.endereco.rua}"
+                     required="true" />
+                     
+        <p:outputLabel for="numero" value="Número:" />
+        <p:inputText id="numero" value="#{atendimentoBean.paciente.endereco.numero}"
+                     required="true" />
+                     
+        <p:outputLabel for="bairro" value="Bairro:" />
+        <p:inputText id="bairro" value="#{atendimentoBean.paciente.endereco.bairro}"
+                     required="true" />
+                     
+        <p:outputLabel for="cidade" value="Cidade:" />
+        <p:inputText id="cidade" value="#{atendimentoBean.paciente.endereco.cidade}"
+                     required="true" />
+
+        <p:outputLabel for="cep" value="CEP:" />
+        <p:inputMask id="cep" value="#{atendimentoBean.paciente.endereco.cep}"
+                     required="true" mask="99999-999" />
+    
+    </p:panelGrid>
+</p:panel>
+
+<br/>
+
+<p:panel id="painelSelecaoMedicos" header="3. Selecionar Médicos">
+    <p:outputLabel value="Médicos Envolvidos:" style="font-weight:bold;"/>
+    <br/><br/>
+    
+    <p:selectManyCheckbox id="medicos" value="#{atendimentoBean.medicosSelecionados}" layout="grid" columns="3">
+        <f:selectItems value="#{atendimentoBean.listaMedicos}" var="medico"
+                       itemLabel="#{medico.nomeCompleto}" itemValue="#{medico}" />
+    </p:selectManyCheckbox>
+</p:panel>
+
+<br/>
+
+<p:panel id="painelFinalizar" header="4. Data e Finalização">
+    <p:panelGrid columns="2" styleClass="ui-noborder">
+        <p:outputLabel for="dataAtendimento" value="Data do Atendimento:" />
+        <p:calendar id="dataAtendimento" 
+                    value="#{atendimentoBean.dataAtendimento}" 
+                    pattern="dd/MM/yyyy HH:mm" 
+                    required="true" 
+                    mask="true"/>
+    </p:panelGrid>
+    
+    <br/>
+    
+    <p:commandButton value="Gravar Atendimento"
+                     actionListener="#{atendimentoBean.gravarAtendimento}"
+                     process="@form" 
+                     update="@form" />
+</p:panel>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

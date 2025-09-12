@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<h:head></h:head>
+<ui:composition template="/template.xhtml">
+<ui:define name="titulo">Gerenciamento de Médicos</ui:define>
+
+<ui:define name="conteudo">
+
+	<p:growl life="5000" showDetail="true" id="msg"/>
+	<h:form id="formMedico">
+            <p:panel header="Dados do Médico">
+                <h:panelGrid columns="4">
+                    <p:outputLabel value="Primeiro Nome:" for="@next"/>
+                    <p:inputText id="primeiroNome" value="#{medicoBean.medico.primeiroNome}" required="true"/>
+                    
+                    <p:outputLabel value="Sobrenome:" for="@next"/>
+                    <p:inputText id="sobrenome" value="#{medicoBean.medico.sobrenome}" required="true"/>
+                    
+                    <p:outputLabel value="CRM:" for="@next"/>
+                    <p:inputText id="crm" value="#{medicoBean.medico.crm}" required="true"/>
+                    
+                    <p:outputLabel value="Especialidade:" for="@next"/>
+                    <p:inputText id="especialidade" value="#{medicoBean.medico.especialidade}" required="true"/>
+                    
+                    <p:outputLabel value="Rua:" for="@next"/>
+                    <p:inputText id="rua" value="#{medicoBean.medico.endereco.rua}" required="true"/>
+
+                    <p:outputLabel value="Número:" for="@next"/>
+                    <p:inputText id="numero" value="#{medicoBean.medico.endereco.numero}" required="true"/>
+                    
+                    <p:outputLabel value="Bairro:" for="@next"/>
+                    <p:inputText id="bairro" value="#{medicoBean.medico.endereco.bairro}" required="true"/>
+
+                    <p:outputLabel value="Cidade:" for="@next"/>
+                    <p:inputText id="cidade" value="#{medicoBean.medico.endereco.cidade}" required="true"/>
+
+                    <p:outputLabel value="CEP:" for="@next"/>
+                    <p:inputMask id="cep" mask="99999-999" value="#{medicoBean.medico.endereco.cep}" required="true"/>
+
+                </h:panelGrid>
+
+                <p:commandButton action="#{medicoBean.salvar()}" value="Salvar"
+                                 process="@form" update="@form :formListaMedicos :msg"
+                                 rendered="#{!medicoBean.editar}"/>
+
+                <p:commandButton action="#{medicoBean.editar()}" value="Atualizar"
+                                 process="@form" update="@form :formListaMedicos :msg"
+                                 rendered="#{medicoBean.editar}"/>
+            </p:panel>
+        </h:form>
+        
+        <br/>
+
+        <h:form id="formListaMedicos">
+            <p:panel header="Médicos Cadastrados">
+                <p:dataTable value="#{medicoBean.medicos}" var="medicoAtual"
+                             paginator="true" rows="5" paginatorPosition="bottom"
+                             rowsPerPageTemplate="5,10,15"
+                             stripedRows="true" emptyMessage="Nenhum médico encontrado.">
+
+                    <p:column headerText="Nome" filterBy="#{medicoAtual.nomeCompleto}" 
+                    			sortBy="#{medicoAtual.nomeCompleto}"
+                    			filterMatchMode="contains">
+                        <h:outputText value="#{medicoAtual.nomeCompleto}" />
+                    </p:column>
+                    
+                    <p:column headerText="CRM" filterBy="#{medicoAtual.crm}" sortBy="#{medicoAtual.crm}">
+                        <h:outputText value="#{medicoAtual.crm}" />
+                    </p:column>
+                    
+                    <p:column headerText="Especialidade" filterBy="#{medicoAtual.especialidade}" sortBy="#{medicoAtual.especialidade}">
+                        <h:outputText value="#{medicoAtual.especialidade}" />
+                    </p:column>
+                    
+                    <p:column headerText="Ações">
+                        <p:commandButton action="#{medicoBean.excluir(medicoAtual)}" value="Excluir"
+                                         process="@this" update=":formListaMedicos :msg" style="margin-right: .5rem;">
+                            <p:confirm header="Confirmação" message="Deseja realmente excluir este médico?" icon="pi pi-exclamation-triangle"/>
+                        </p:commandButton>
+                        
+                        <p:commandButton action="#{medicoBean.carregar(medicoAtual)}" value="Editar"
+                                         process="@this" update=":formMedico" />
+                    </p:column>
+                </p:dataTable>
+            </p:panel>
+        </h:form>
+        
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+        </p:confirmDialog>
+</ui:define>
+
+</ui:composition>
+</html>
